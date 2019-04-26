@@ -1,0 +1,126 @@
+import java.util.BitSet;
+
+public class HuffmanTree {
+	
+	private char[] m_aChars;
+	private float[] m_aPercent;
+	private String[] m_aBits;
+	
+	public HuffmanTree(String _sString){
+		char[] tmp = _sString.toCharArray();
+		String spp = "";
+		for(int i = 0; i < tmp.length; i++){
+			if(existeEn(tmp[i], spp) == false){
+				spp = spp + tmp[i];
+			}
+		}
+		m_aChars = spp.toCharArray();
+		m_aPercent = new float[m_aChars.length];
+		getPorcentaje(_sString);
+		ordenarChars();
+		m_aBits = new String[m_aChars.length];
+		getMasks();
+	}
+	
+	private String getAscii(char _cChar){
+		int tmp = _cChar & 0x7f;
+		return Integer.toBinaryString(tmp);
+	}
+	
+	private boolean existeEn(char _cChar, String _sString){
+		for(int i = 0; i < _sString.length(); i++){
+			if(_cChar == _sString.charAt(i)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private void getPorcentaje(String _sString){
+		int k = 0;
+		for(int i = 0; i < m_aChars.length; i++){
+			for(int j = 0; j < _sString.length(); j++){
+				if(m_aChars[i] == _sString.charAt(j)){
+					k++;
+				}
+			}
+			m_aPercent[i] = (float)k/_sString.length();
+			k = 0;
+		}
+	}
+	
+	private void getMasks(){
+		BitSet mask;
+		for(int i = 0; i < m_aBits.length; i++){
+			if(i < m_aBits.length - 1 && i != 0){
+				mask = new BitSet(1 + i);
+				mask.set(0, i);
+				m_aBits[i] = binString(mask) + '0';
+			}
+			else if(i == m_aBits.length - 1){
+				mask = new BitSet(i);
+				mask.set(0, i);
+				m_aBits[i] = binString(mask);
+			}
+			else{
+				mask = new BitSet(1);
+				m_aBits[i] = binString(mask) + '0';
+			}
+		}
+	}
+	
+	private void ordenarChars(){
+		float tmp;
+		char spp;
+		for(int i = 0; i < m_aPercent.length; i++){
+			for(int j = 0; j < m_aPercent.length; j++){
+				if(m_aPercent[j] < m_aPercent[i]){
+					tmp = m_aPercent[j];
+					m_aPercent[j] = m_aPercent[i];
+					m_aPercent[i] = tmp;
+					spp = m_aChars[j];
+					m_aChars[j] = m_aChars[i];
+					m_aChars[i] = spp;
+				}
+			}
+		}
+	}
+	
+	private String binString(BitSet _bMask){
+		String tmp = "";
+		for(int i = 0; i < _bMask.length(); i++){
+			if(_bMask.get(i) == true){
+				tmp = tmp + '1';
+			}
+		}
+		return tmp;
+	}
+	
+	@Override
+	public String toString(){
+		String tmp = "Chars: " + String.copyValueOf(m_aChars) + "\nÁrbol de Bits: ";
+		for(int i = 0; i < m_aBits.length; i++){
+			tmp = tmp + m_aBits[i];
+		}
+		return tmp;
+	}
+
+
+}
+
+import java.util.Scanner;
+
+public class Compressor {
+	
+	public static void main(String[] args){
+		
+		Scanner sc = new Scanner(System.in);
+		String in;
+		System.out.println("Ingrese texto a comprimir");
+		in = sc.nextLine();
+		HuffmanTree huffman = new HuffmanTree(in);
+		System.out.println(huffman.toString());
+		
+	}
+
+}
